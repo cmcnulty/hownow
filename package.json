@@ -1,0 +1,73 @@
+{
+  "name": "hownow",
+  "version": "1.0.0",
+  "description": "Explainable calculator with internationalization support - track calculation steps and provide transparent, translatable explanations",
+  "main": "./dist/index.js",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "mathjs": "^14.4.0"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "lint": "eslint . && echo 'Linting passed successfully!'",
+    "prepublishOnly": "npm run lint && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.2.0",
+    "@jest/globals": "^29.5.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.15.30",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.1.3",
+    "globals": "^16.0.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.0.3",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^8.2.0"
+  },
+  "author": "Charles McNulty",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cmcnulty/hownow.git"
+  },
+  "keywords": [
+    "calculator",
+    "explainable",
+    "audit-trail",
+    "financial",
+    "i18n",
+    "internationalization",
+    "BigNumber",
+    "transparency",
+    "calculation-steps",
+    "math",
+    "precision"
+  ],
+  "bugs": {
+    "url": "https://github.com/cmcnulty/hownow/issues"
+  },
+  "homepage": "https://github.com/cmcnulty/hownow#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
