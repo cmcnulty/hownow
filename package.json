@@ -1,6 +1,6 @@
 {
   "name": "hownow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Explainable calculator with internationalization support - track calculation steps and provide transparent, translatable explanations",
   "main": "./dist/index.js",
   "type": "module",
