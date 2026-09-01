@@ -1,30 +1,8 @@
-import {
-    create,
-    addDependencies,
-    divideDependencies,
-    multiplyDependencies,
-    subtractDependencies,
-    roundDependencies,
-    // evaluateDependencies,
-    BigNumber,
-} from 'mathjs';
+import { Decimal } from 'decimal.js';
 
-// Create just the functions we need
-const math = create(
-    {
-        addDependencies,
-        subtractDependencies,
-        multiplyDependencies,
-        divideDependencies,
-        roundDependencies,
-        // evaluateDependencies,
-    },
-    {
-        number: 'BigNumber',
-        precision: 16,
-        epsilon: 1e-60,
-    },
-);
+// Match the arithmetic settings mathjs used for its BigNumber (decimal.js) type.
+// Keep exponential notation well out of the way so expression strings stay readable.
+Decimal.set({ precision: 16, toExpNeg: -60, toExpPos: 60 });
 
 export enum Operator {
     ADD = '+',
@@ -33,13 +11,12 @@ export enum Operator {
     DIVIDE = '/',
 }
 
-type OperatorFunction = (a: OperatorFunctionParam, b: OperatorFunctionParam) => math.BigNumber;
-type OperatorFunctionParam = number | BigNumber;
+type OperatorFunction = (a: Decimal.Value, b: Decimal.Value) => Decimal;
 const operatorMap: Record<Operator, OperatorFunction> = {
-    [Operator.ADD]: (a: OperatorFunctionParam, b: OperatorFunctionParam) => math.bignumber(a).add(b),
-    [Operator.SUBTRACT]: (a: OperatorFunctionParam, b: OperatorFunctionParam) => math.bignumber(a).sub(b),
-    [Operator.MULTIPLY]: (a: OperatorFunctionParam, b: OperatorFunctionParam) => math.bignumber(a).mul(b),
-    [Operator.DIVIDE]: (a: OperatorFunctionParam, b: OperatorFunctionParam) => math.bignumber(a).div(b),
+    [Operator.ADD]: (a, b) => new Decimal(a).plus(b),
+    [Operator.SUBTRACT]: (a, b) => new Decimal(a).minus(b),
+    [Operator.MULTIPLY]: (a, b) => new Decimal(a).times(b),
+    [Operator.DIVIDE]: (a, b) => new Decimal(a).dividedBy(b),
 };
 
 export type CalcStep = {
@@ -59,7 +36,7 @@ export type DisplayFormat = {
 
 class HowNow {
     private static debugMode: boolean = false;
-    private num: BigNumber;
+    private num: Decimal;
     private expr: string = '';
     private rollUps: Map<string, HowNow> = new Map();
     private metadata: Map<string, unknown> = new Map();
@@ -67,8 +44,8 @@ class HowNow {
     private nextOperationToken?: string;
     private nextOperationMetadata?: Record<string, unknown>;
 
-    constructor(num: number | HowNow | BigNumber = 0, expr?: string) {
-        this.num = math.bignumber(+num);
+    constructor(num: number | HowNow | Decimal = 0, expr?: string) {
+        this.num = new Decimal(+num);
         this.expr = expr || num.toString();
 
         if (HowNow.debugMode && num instanceof HowNow) {
@@ -220,7 +197,7 @@ class HowNow {
     private addUnaryOperationStep(
         newHowNow: HowNow,
         operation: string,
-        result: BigNumber,
+        result: Decimal,
         defaultTokenKey: string,
         defaultMetadata?: Record<string, unknown>,
     ): void {
@@ -319,11 +296,7 @@ class HowNow {
     }
     floor(precision?: number): HowNow {
         const expr = `floor(${this.expr})`;
-        const result = math
-            .bignumber(this.num)
-            .mul(math.bignumber(10).pow(precision || 0))
-            .floor()
-            .div(math.bignumber(10).pow(precision || 0));
+        const result = this.num.toDecimalPlaces(precision || 0, Decimal.ROUND_FLOOR);
         const newHowNow = new HowNow(result.toNumber(), expr);
 
         this.addUnaryOperationStep(newHowNow, 'floor', result, 'calc.operation.floor', { precision });
@@ -332,7 +305,7 @@ class HowNow {
     }
     round(precision: number): HowNow {
         const expr = this.expr; // `round(${this.expr}, ${precision})`;
-        const result = math.round(this.num, precision);
+        const result = this.num.toDecimalPlaces(precision, Decimal.ROUND_HALF_UP);
         const newHowNow = new HowNow(result.toNumber(), expr);
 
         this.addUnaryOperationStep(newHowNow, 'round', result, 'calc.operation.round', { precision });
@@ -340,10 +313,10 @@ class HowNow {
         return newHowNow;
     }
     gt(num: number) {
-        return math.bignumber(this.num).greaterThan(num);
+        return this.num.greaterThan(num);
     }
     lt(num: number) {
-        return math.bignumber(this.num).lessThan(num);
+        return this.num.lessThan(num);
     }
     max(num: number) {
         const result = Math.max(this.num.toNumber(), num);

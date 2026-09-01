@@ -6,7 +6,7 @@ HowNow is a JavaScript library that tracks calculation steps and provides transp
 
 ## Features
 
-- 🔢 **High-precision math** using BigNumber (via mathjs)
+- 🔢 **High-precision math** using BigNumber (via decimal.js)
 - 🌍 **Internationalization-first design** with token-based translations
 - 📊 **Step-by-step calculation tracking** with full audit trail
 - ⚡ **Zero performance overhead** when debug mode is disabled
@@ -312,4 +312,4 @@ MIT © Charles McNulty
 ## Related Projects
 
 - Built for and used by [wrs-calculator](https://github.com/cmcnulty/wrs-calculator)
-- Uses [mathjs](https://mathjs.org/) for high-precision BigNumber calculations
+- Uses [decimal.js](https://mikemcl.github.io/decimal.js/) for high-precision BigNumber calculations
